@@ -6,11 +6,15 @@ Documentation indexed from `docs/` at startup via semantic embeddings using loca
 
 ## Tool Usage
 
-The server provides one primary tool:
+The server provides five tools:
 
-| Tool                   | Purpose                                                                                                                                                                                         |
-| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `search-documentation` | Semantic search over team documentation. Use for finding team processes, coding standards, best practices, guides, troubleshooting tips, API docs, and any other knowledge in the docs/ folder. |
+| Tool                           | Purpose                                                                                                                                                                                         |
+| ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `search-documentation`         | Semantic search over team documentation. Use for finding team processes, coding standards, best practices, guides, troubleshooting tips, API docs, and any other knowledge in the docs/ folder. |
+| `list-indexed-files`           | Get a list of all documentation files that have been indexed and are available for semantic search. Useful for discovering what documentation exists.                                           |
+| `get-document-content`         | Read the complete content of a specific documentation file. Use this when you need to read the full document after finding it through search.                                                   |
+| `get-documentation-guidelines` | Get comprehensive guidelines for creating and formatting team documentation. Use before saving new documentation to ensure quality and searchability.                                           |
+| `save-documentation`           | Save new documentation files to the docs/ folder and automatically index them for search. Follows the guidelines from get-documentation-guidelines.                                             |
 
 ## When to Use
 

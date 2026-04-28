@@ -103,6 +103,16 @@ export class FileIndexer {
         return this.chunks.length;
     }
 
+    /**
+     * Get the list of unique file paths that have been indexed.
+     * 
+     * @returns Array of file paths sorted alphabetically.
+     */
+    getIndexedFiles(): string[] {
+        const uniqueFiles = new Set(this.chunks.map(chunk => chunk.filePath));
+        return Array.from(uniqueFiles).sort();
+    }
+
     // ── Embedding ────────────────────────────────────────────────────
 
     private async getEmbedder() {
@@ -261,7 +271,54 @@ export class FileIndexer {
         log.stat('Cache directory', this.cacheDir);
         log.stat('Duration', elapsed < 1000 ? `${elapsed}ms` : `${(elapsed / 1000).toFixed(2)}s`);
     }
+    /**
+     * Re-index a single document and merge it into the existing index.
+     * Used for adding new documentation files without full re-indexing.
+     */
+    async reindexDocument(doc: DocumentInput): Promise<void> {
+        const log = new Logger('indexer');
 
+        // Remove any existing chunks for this document
+        this.chunks = this.chunks.filter(chunk => chunk.filePath !== doc.relativePath);
+
+        // Check cache first
+        const cached = await this.loadCachedChunks(doc.relativePath, doc.sourceModifiedMs);
+        if (cached) {
+            this.chunks.push(...cached);
+            log.info(`Loaded ${doc.relativePath} from cache → ${cached.length} chunk(s)`);
+            this._indexedFileCount = new Set(this.chunks.map(c => c.filePath)).size;
+            this._lastIndexedAt = new Date().toISOString();
+            return;
+        }
+
+        // Chunk and embed the document
+        const fileChunks = this.chunkText(doc.text);
+        const fileIndexedChunks: IndexedChunk[] = [];
+
+        for (const [chunkIndex, chunk] of fileChunks.entries()) {
+            const embedding = await this.embedText(chunk.text);
+            const indexedChunk: IndexedChunk = {
+                id: `${doc.relativePath}::${chunkIndex}`,
+                filePath: doc.relativePath,
+                chunkIndex,
+                startWord: chunk.startWord,
+                endWord: chunk.endWord,
+                text: chunk.text,
+                embedding,
+            };
+            fileIndexedChunks.push(indexedChunk);
+        }
+
+        this.chunks.push(...fileIndexedChunks);
+
+        // Save to cache
+        await this.saveCachedChunks(doc.relativePath, fileIndexedChunks);
+
+        this._indexedFileCount = new Set(this.chunks.map(c => c.filePath)).size;
+        this._lastIndexedAt = new Date().toISOString();
+
+        log.success(`Indexed ${doc.relativePath} → ${fileChunks.length} chunk(s), saved to cache`);
+    }
     // ── Search ───────────────────────────────────────────────────────
 
     /**

@@ -5,6 +5,10 @@ An [MCP](https://modelcontextprotocol.io/) (Model Context Protocol) server for *
 ## Features
 
 - **`search-documentation`** - Semantic similarity search over your team's documentation in the `docs/` folder
+- **`list-indexed-files`** - Get a list of all indexed documentation files
+- **`get-document-content`** - Read the full content of any documentation file
+- **`get-documentation-guidelines`** - Get guidelines for creating well-structured documentation
+- **`save-documentation`** - Save new documentation files and automatically index them
 - **Local embeddings** - Uses [`@xenova/transformers`](https://github.com/xenova/transformers.js) for local semantic search - no external API calls required
 - **Intelligent caching** - Embeddings are cached and only recomputed when documents change
 - **Flexible configuration** - Customize chunk sizes, file types, and embedding models
@@ -76,7 +80,7 @@ To test the tool interactively with the [MCP Inspector](https://github.com/model
 npm run inspect
 ```
 
-## MCP Tool
+## MCP Tools
 
 ### `search-documentation`
 
@@ -95,20 +99,69 @@ Semantic similarity search over indexed documents from the `docs/` folder.
 - "How to deploy to production?"
 - "API authentication best practices"
 
+### `list-indexed-files`
+
+Get a list of all documentation files that have been indexed and are available for semantic search.
+
+No parameters required.
+
+**Returns:**
+
+- List of indexed file paths
+- Total file count
+- Total chunk count
+- Last indexing timestamp
+
+### `get-document-content`
+
+Read the complete content of a specific documentation file.
+
+| Parameter  | Type   | Required | Description                                                    |
+| ---------- | ------ | -------- | -------------------------------------------------------------- |
+| `filePath` | string | ✅       | Relative path to the file (e.g., "guides/observer-pattern.md") |
+
+**Returns:** Full content of the specified documentation file.
+
+### `get-documentation-guidelines`
+
+Get comprehensive guidelines for creating and formatting team documentation.
+
+No parameters required.
+
+**Returns:** Detailed guidelines covering file naming, structure, formatting, and best practices.
+
+### `save-documentation`
+
+Save a new documentation file to the docs folder. The file is automatically indexed for semantic search.
+
+| Parameter   | Type   | Required | Description                                      |
+| ----------- | ------ | -------- | ------------------------------------------------ |
+| `filename`  | string | ✅       | Name of the markdown file (must end with .md)    |
+| `content`   | string | ✅       | Markdown content to save                         |
+| `subfolder` | string | -        | Optional subfolder within docs/ (e.g., "guides") |
+
+**Returns:** Confirmation of saved file path and indexing status.
+
 ## Project Structure
 
 ```
-server.ts                        # Entry point - wiring & startup
+server.ts                              # Entry point - wiring & startup
 src/
-  config.ts                      # Centralised configuration (env overrides)
-  tool.ts                        # Abstract Tool<TInput> base class
-  file-indexer.ts                # Chunking, embedding, caching & search
-  document-loader.ts             # File discovery & reading
-  logger.ts                      # Logging utility
+  config.ts                            # Centralised configuration (env overrides)
+  tool.ts                              # Abstract Tool<TInput> base class
+  file-indexer.ts                      # Chunking, embedding, caching & search
+  document-loader.ts                   # File discovery & reading
+  logger.ts                            # Logging utility
   tools/
-    search-documentation.ts      # SearchDocumentationTool
-docs/                            # Your team's documentation (add files here!)
-  .cache/                        # Cached embeddings (auto-generated)
+    search-documentation.ts            # Semantic search tool
+    list-indexed-files.ts              # List all indexed files
+    get-document-content.ts            # Read full file content
+    get-documentation-guidelines.ts    # Get documentation guidelines
+    save-documentation.ts              # Save and index new documentation
+assets/
+  documentation-guidelines.md          # Guidelines for creating documentation
+docs/                                  # Your team's documentation (add files here!)
+  .cache/                              # Cached embeddings (auto-generated)
 ```
 
 ## How It Works

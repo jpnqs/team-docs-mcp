@@ -4,6 +4,10 @@ import { Logger } from './src/logger.js';
 import { FileIndexer } from './src/file-indexer.js';
 import { DocumentLoader } from './src/document-loader.js';
 import { SearchDocumentationTool } from './src/tools/search-documentation.js';
+import { SaveDocumentationTool } from './src/tools/save-documentation.js';
+import { GetDocumentationGuidelinesTool } from './src/tools/get-documentation-guidelines.js';
+import { ListIndexedFilesTool } from './src/tools/list-indexed-files.js';
+import { GetDocumentContentTool } from './src/tools/get-document-content.js';
 import {
     DOCS_DIR,
     INDEXED_DIR,
@@ -35,6 +39,10 @@ const server = new McpServer({
 
 const tools = [
     new SearchDocumentationTool(indexer),
+    new SaveDocumentationTool(indexer, DOCS_DIR),
+    new GetDocumentationGuidelinesTool(),
+    new ListIndexedFilesTool(indexer),
+    new GetDocumentContentTool(DOCS_DIR),
 ];
 
 for (const tool of tools) {

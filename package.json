@@ -5,6 +5,7 @@
   "main": "server.ts",
   "type": "module",
   "scripts": {
+    "build": "tsc",
     "start": "npx tsx server.ts",
     "inspect": "npx @modelcontextprotocol/inspector npx tsx server.ts",
     "test": "node index.js"
